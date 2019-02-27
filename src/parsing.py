@@ -55,6 +55,8 @@ def parse_machine(encoded_machine_file: str) -> TuringMachine:
         assert_syntax(line[0] == "alphabet", "expected alphabet heading")
         num_letters = assert_cast(
             line[1], int, "the number of letters in the alphabet must be an integer")
+        assert_syntax(num_letters > 0,
+                      "the alphabet needs at least one letter")
         alphabet = line[2::]
         assert_syntax(len(alphabet) == num_letters,
                       "the actual number of letters needs to match the number of letters provided")

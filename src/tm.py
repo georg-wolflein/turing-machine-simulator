@@ -76,6 +76,13 @@ class TuringMachineDescription:
         assert_property(self.initial != None, "initial state must be defined")
 
 
+class TuringMachineResult:
+    def __init__(self, num_steps: int, accepted: bool, tape: typing.List[str]):
+        self.num_steps = num_steps
+        self.accepted = accepted
+        self.tape = tape
+
+
 class TuringMachine:
 
     def __init__(self, description: TuringMachineDescription):
@@ -87,22 +94,28 @@ class TuringMachine:
         self.rejecting = description.rejecting
         self.current = self.initial
 
-    def process_input(self, input: list):
-        assert_property(all(x in self.alphabet for x in input),
+    def process_input(self, input: list) -> TuringMachineResult:
+        assert_property(all(x in self.alphabet or x == "_" for x in input),
                         "input contains invalid characters")
         self.tape = input
         self.position = 0
         self.has_accepted = False
         self.has_rejected = False
-        while not self.has_terminated():
+        num_steps = 0
+        while True:
             self.perform_next_step()
-            print(" ".join(self.tape[0:self.position]), end="")
-            print("(" + self.read() + ")", end="")
-            print(" ".join(self.tape[self.position+1:]))
-        if self.has_accepted:
-            print("Accepted")
-        if self.has_rejected:
-            print("Rejected")
+            if self.has_terminated():
+                break
+            else:
+                num_steps += 1
+            # print(" ".join(self.tape[0:self.position]), end="")
+            # print("(" + self.read() + ")", end="")
+            # print(" ".join(self.tape[self.position+1:]))
+        # if self.has_accepted:
+        #     print("Accepted")
+        # if self.has_rejected:
+        #     print("Rejected")
+        return TuringMachineResult(num_steps, self.has_accepted, self.tape)
 
     def get_current_state(self):
         return self.states[self.current]
@@ -134,7 +147,7 @@ class TuringMachine:
         if len(self.tape) == self.position:
             self.tape.append("_")
 
-    def perform_next_step(self) -> bool:
+    def perform_next_step(self):
         head = self.read()
         current = self.get_current_state()
         if head in current:
