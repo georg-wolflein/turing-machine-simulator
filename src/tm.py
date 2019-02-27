@@ -109,7 +109,7 @@ class TuringMachine:
             else:
                 num_steps += 1
             # print(" ".join(self.tape[0:self.position]), end="")
-            # print("(" + self.read() + ")", end="")
+            # print("<" + self.read() + ">", end="")
             # print(" ".join(self.tape[self.position+1:]))
         # if self.has_accepted:
         #     print("Accepted")
