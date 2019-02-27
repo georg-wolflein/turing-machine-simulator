@@ -23,6 +23,7 @@ class TuringMachineDescription:
     def add_letter(self, letter: str):
         assert_property(letter not in self.alphabet,
                         "letter is already defined")
+        assert_property(letter != "_", "the _ letter is reserved")
         self.alphabet.add(letter)
 
     def add_state(self, state: str):
@@ -61,8 +62,10 @@ class TuringMachineDescription:
                         "the accept and reject states may not have outgoing transitions")
         assert_property(
             tape_input not in self.states[from_state], "transitions cannot be defined multiple times")
-        # assert tape_input in self.alphabet
-        # assert tape_output in self.alphabet
+        assert_property(tape_input in self.alphabet or tape_input ==
+                        "_", "tape input must be in the alphabet")
+        assert_property(tape_output in self.alphabet or tape_output ==
+                        "_", "tape output must be in alphabet")
 
         self.states[from_state][tape_input] = (
             to_state, tape_output, move_right)
@@ -134,11 +137,14 @@ class TuringMachine:
     def perform_next_step(self) -> bool:
         head = self.read()
         current = self.get_current_state()
-        assert head in current
-        to_state, tape_output, move_right = current[head]
-        self.write(tape_output)
-        self.move_head(move_right)
-        self.go_to_state(to_state)
+        if head in current:
+            to_state, tape_output, move_right = current[head]
+            self.write(tape_output)
+            self.move_head(move_right)
+            self.go_to_state(to_state)
+        else:
+            self.move_head(False)
+            self.go_to_state(self.rejecting)
 
     def has_terminated(self) -> bool:
         return self.has_accepted or self.has_rejected

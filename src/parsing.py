@@ -1,5 +1,4 @@
 from tm import TuringMachine, TuringMachineDescription
-import sys
 
 
 class SyntaxError(Exception):
@@ -19,7 +18,7 @@ def assert_cast(var, t: type, message: str):
         raise SyntaxError(message)
 
 
-def create_turing_machine(encoded_machine_file: str) -> TuringMachine:
+def parse_machine(encoded_machine_file: str) -> TuringMachine:
     with open(encoded_machine_file, "r") as f:
         description = TuringMachineDescription()
 
@@ -75,8 +74,3 @@ def create_turing_machine(encoded_machine_file: str) -> TuringMachine:
             description.add_transition(
                 from_state, tape_input, to_state, tape_output, move_right)
         return TuringMachine(description)
-
-
-if __name__ == "__main__":
-    machine = create_turing_machine(sys.argv[1])
-    machine.process_input(["a", "a", "a", "b"])
