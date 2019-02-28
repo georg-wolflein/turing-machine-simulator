@@ -1,5 +1,6 @@
 import typing
 import sys
+import os
 
 
 class ExecutionError(Exception):
@@ -97,9 +98,9 @@ class TuringMachineResult:
 
     def __str__(self):
         return ("accepted" if self.accepted else "not accepted") + \
-            "\n" + str(self.num_steps) + \
-            "\n" + " ".join(self.tape) + \
-            "\n" + ("0" if self.accepted else "1")
+            os.linesep + str(self.num_steps) + \
+            os.linesep + " ".join(self.tape) + \
+            os.linesep + ("0" if self.accepted else "1")
 
 
 class TuringMachine:
