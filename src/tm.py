@@ -21,7 +21,7 @@ class TuringMachineResult:
                 self.tape = ["_"]
 
     def __str__(self):
-        return ("accepted" if self.accepted else "not accepted") + os.linesep + str(self.num_steps) + os.linesep + ("".join(self.tape) if self.tape is not None else "")
+        return ("accepted" if self.accepted else "not accepted") + os.linesep + str(self.num_steps) + ((os.linesep + "".join(self.tape)) if self.tape is not None else "")
 
 
 class TuringMachineConfiguration:
