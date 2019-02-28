@@ -91,7 +91,8 @@ class TuringMachineResult:
         for i, letter in enumerate(reversed(tape)):
             if letter != "_":
                 break
-        self.tape = tape[:-i]
+        if i < 0:
+            self.tape = tape[:-i]
         if self.tape == []:
             self.tape = ["_"]
 
