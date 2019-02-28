@@ -125,21 +125,21 @@ class NondeterministicTuringMachine(TuringMachine):
             # filter out configurations that reject
             nonrejecting_configurations = []
             for configuration in configurations:
-                if configuration.current == self.description.accepting:
-                    # if we have an accepting configuration, accept
-                    return TuringMachineResult(num_steps, True, None)
-                elif configuration.current != self.description.rejecting:
-                    nonrejecting_configurations.append(configuration)
+                for possibility in self.perform_step(configuration):
+                    if possibility.current == self.description.accepting:
+                        # if we have an accepting configuration, accept
+                        return TuringMachineResult(num_steps, True, None)
+                    elif configuration.current != self.description.rejecting:
+                        nonrejecting_configurations.append(possibility)
+            configurations = nonrejecting_configurations
             # reject if there are no configurations left
             if len(configurations) == 0:
                 return TuringMachineResult(num_steps, False, None)
-            configurations = [c for c in self.perform_step(
-                configuration) for configuration in nonrejecting_configurations]
-            num_steps += 1
             if verbose:
                 for configuration in configurations:
                     configuration.print()
                 print()
+            num_steps += 1
 
     def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
         head = configuration.read()
@@ -154,6 +154,4 @@ class NondeterministicTuringMachine(TuringMachine):
                 confs.append(conf)
             return confs
         else:
-            configuration.move_head(False)
-            configuration.go_to_state(self.description.rejecting)
-            return [configuration]
+            return []
