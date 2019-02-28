@@ -1,7 +1,7 @@
 import sys
 import typing
 from parsing import parse_machine
-from tm import ExecutionError
+from error import ExecutionError
 
 
 def fail(code: int, message: str, error: typing.Union[Exception, str]):

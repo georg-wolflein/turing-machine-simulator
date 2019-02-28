@@ -1,88 +1,8 @@
 import typing
 import sys
 import os
-
-
-class ExecutionError(Exception):
-    def __init__(self, message: str):
-        self.message = message
-
-    def __str__(self):
-        return self.message
-
-
-class TuringMachineError(ExecutionError):
-    def __init__(self, message: str):
-        super().__init__(message)
-
-
-def assert_property(cond: bool, message: str):
-    if not cond:
-        raise TuringMachineError(message)
-
-
-class TuringMachineDescription:
-    def __init__(self):
-        self.alphabet = set()
-        self.states = dict()
-        self.initial = None
-        self.accepting = None
-        self.rejecting = None
-
-    def add_letter(self, letter: str):
-        assert_property(letter not in self.alphabet,
-                        "letter is already defined")
-        assert_property(letter != "_", "the _ letter is reserved")
-        self.alphabet.add(letter)
-
-    def add_state(self, state: str):
-        assert_property(state not in self.states, "state is already defined")
-        self.states[state] = dict()
-
-    def set_initial(self, state: str):
-        assert_property(state in self.states,
-                        "initial state is not yet defined")
-        self.initial = state
-
-    def set_accepting(self, state: str):
-        assert_property(self.accepting == None,
-                        "accept state is already defined")
-        assert_property(state in self.states,
-                        "accept state is not yet defined")
-        assert_property(state != self.rejecting,
-                        "accept and reject states must be different")
-        self.accepting = state
-
-    def set_rejecting(self, state: str):
-        assert_property(self.rejecting == None,
-                        "reject state is already defined")
-        assert_property(state in self.states,
-                        "reject state is not yet defined")
-        assert_property(state != self.accepting,
-                        "accept and reject states must be different")
-        self.rejecting = state
-
-    def add_transition(self, from_state: str, tape_input: str, to_state: str, tape_output: str, move_right: bool):
-        assert_property(from_state in self.states,
-                        "from state {} is not a valid state".format(from_state))
-        assert_property(to_state in self.states,
-                        "to state {} is not a valid state".format(to_state))
-        assert_property(from_state not in (self.accepting, self.rejecting),
-                        "the accept and reject states may not have outgoing transitions")
-        assert_property(
-            tape_input not in self.states[from_state], "transitions cannot be defined multiple times")
-        assert_property(tape_input in self.alphabet or tape_input ==
-                        "_", "tape input must be in the alphabet")
-        assert_property(tape_output in self.alphabet or tape_output ==
-                        "_", "tape output must be in alphabet")
-
-        self.states[from_state][tape_input] = (
-            to_state, tape_output, move_right)
-
-    def verify_validity(self):
-        assert_property(self.accepting != None, "accept state must be defined")
-        assert_property(self.rejecting != None, "reject state must be defined")
-        assert_property(self.initial != None, "initial state must be defined")
+from description import DeterministicTuringMachineDescription
+from error import assert_property
 
 
 class TuringMachineResult:
@@ -97,23 +17,21 @@ class TuringMachineResult:
             self.tape = ["_"]
 
     def __str__(self):
-        return ("accepted" if self.accepted else "not accepted") + \
-            os.linesep + str(self.num_steps) + \
-            os.linesep + "".join(self.tape)
+        return ("accepted" if self.accepted else "not accepted") + os.linesep + str(self.num_steps) + os.linesep + "".join(self.tape)
 
 
-class TuringMachine:
+class TuringMachineConfiguration:
+    def __init__(self, current: str, tape: list, position: int = 0, is_accepting: bool = False, is_rejecting: bool = False):
+        self.current = current
+        self.tape = tape
+        self.position = position
+        self.is_accepting = is_accepting
+        self.is_rejecting = is_rejecting
 
-    def __init__(self, description: TuringMachineDescription):
-        description.verify_validity()
-        self.alphabet = description.alphabet
-        self.states = description.states
-        self.initial = description.initial
-        self.accepting = description.accepting
-        self.rejecting = description.rejecting
-        self.current = self.initial
+    def is_terminating(self):
+        return self.is_accepting or self.is_rejecting
 
-    def print_state(self):
+    def print(self):
         print(" {:5s} ".format(self.current), end="")
         for i, letter in enumerate(self.tape):
             if i == self.position:
@@ -123,67 +41,67 @@ class TuringMachine:
                 print('\033[0m', end="")
         print()
 
+
+class TuringMachine:
+
+    def __init__(self, description: DeterministicTuringMachineDescription):
+        self.description = description
+
     def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
-        assert_property(all(x in self.alphabet or x == "_" for x in input),
+        assert_property(all(x in self.description.alphabet or x == "_" for x in input),
                         "input contains invalid characters")
-        self.tape = input
-        self.position = 0
-        self.has_accepted = False
-        self.has_rejected = False
+        configuration = TuringMachineConfiguration(
+            self.description.initial, input)
         num_steps = 0
         if verbose:
-            self.print_state()
+            configuration.print()
         while True:
-            self.perform_next_step()
+            configuration = self.perform_step(configuration)
             if verbose:
-                self.print_state()
-            if self.has_terminated():
+                configuration.print()
+            if configuration.is_terminating():
                 break
             else:
                 num_steps += 1
-        return TuringMachineResult(num_steps, self.has_accepted, self.tape)
+        return TuringMachineResult(num_steps, configuration.is_accepting, configuration.tape)
 
-    def get_current_state(self):
-        return self.states[self.current]
+    def go_to_state(self, configuration: TuringMachineConfiguration, state: str, ):
+        assert state in self.description.states
+        configuration.current = state
+        configuration.is_accepting = configuration.current == self.description.accepting
+        configuration.is_rejecting = configuration.current == self.description.rejecting
 
-    def go_to_state(self, state: str):
-        assert state in self.states
-        self.current = state
-        if self.current == self.accepting:
-            self.has_accepted = True
-        if self.current == self.rejecting:
-            self.has_rejected = True
+    def read(self, configuration: TuringMachineConfiguration) -> str:
+        if configuration.position == 0 and len(configuration.tape) == 0:
+            configuration.tape.append("_")
+        assert configuration.position >= 0 and configuration.position < len(
+            configuration.tape)
+        return configuration.tape[configuration.position]
 
-    def read(self) -> str:
-        if self.position == 0 and len(self.tape) == 0:
-            self.tape.append("_")
-        assert self.position >= 0 and self.position < len(self.tape)
-        return self.tape[self.position]
+    def write(self, configuration: TuringMachineConfiguration, letter: str):
+        assert configuration.position >= 0 and configuration.position < len(
+            configuration.tape)
+        assert_property(letter in self.description.alphabet or letter ==
+                        "_", "letter to be written is not a tape symbol")
+        configuration.tape[configuration.position] = letter
 
-    def write(self, letter: str):
-        assert self.position >= 0 and self.position < len(self.tape)
-        # assert letter in self.alphabet
-        self.tape[self.position] = letter
-
-    def move_head(self, right: bool):
+    def move_head(self, configuration: TuringMachineConfiguration, right: bool):
         if right:
-            self.position += 1
-        elif self.position > 0:
-            self.position -= 1
-        if len(self.tape) == self.position:
-            self.tape.append("_")
+            configuration.position += 1
+        elif configuration.position > 0:
+            configuration.position -= 1
+        if len(configuration.tape) == configuration.position:
+            configuration.tape.append("_")
 
-    def perform_next_step(self):
-        head = self.read()
-        current = self.get_current_state()
+    def perform_step(self, configuration: TuringMachineConfiguration) -> TuringMachineConfiguration:
+        head = self.read(configuration)
+        current = self.description.states[configuration.current]
         if head in current:
             to_state, tape_output, move_right = current[head]
-            self.write(tape_output)
-            self.move_head(move_right)
-            self.go_to_state(to_state)
+            self.write(configuration, tape_output)
+            self.move_head(configuration, move_right)
+            self.go_to_state(configuration, to_state)
         else:
-            self.move_head(False)
-            self.go_to_state(self.rejecting)
-
-    def has_terminated(self) -> bool:
-        return self.has_accepted or self.has_rejected
+            self.move_head(configuration, False)
+            self.go_to_state(configuration, self.description.rejecting)
+        return configuration

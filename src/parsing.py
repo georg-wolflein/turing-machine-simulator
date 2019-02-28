@@ -1,9 +1,6 @@
-from tm import TuringMachine, TuringMachineDescription, ExecutionError
-
-
-class SyntaxError(ExecutionError):
-    def __init__(self, message: str):
-        super().__init__(message)
+from tm import TuringMachine
+from description import DeterministicTuringMachineDescription
+from error import SyntaxError
 
 
 def assert_syntax(cond: bool, message: str):
@@ -20,7 +17,7 @@ def assert_cast(var, t: type, message: str):
 
 def parse_machine(encoded_machine_file: str) -> TuringMachine:
     with open(encoded_machine_file, "r") as f:
-        description = TuringMachineDescription()
+        description = DeterministicTuringMachineDescription()
 
         # states heading
         line = f.readline().strip().split(" ")
@@ -75,4 +72,5 @@ def parse_machine(encoded_machine_file: str) -> TuringMachine:
             move_right = action == "R"
             description.add_transition(
                 from_state, tape_input, to_state, tape_output, move_right)
+        description.verify_validity()
         return TuringMachine(description)
