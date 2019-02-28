@@ -60,6 +60,8 @@ class TuringMachineConfiguration:
             print(letter, end=" ")
             if i == self.position:
                 print('\033[0m', end="")
+            if i > 100:
+                break
         print()
 
     def __hash__(self):
@@ -104,6 +106,7 @@ class DeterministicTuringMachine(TuringMachine):
                 break
             else:
                 num_steps += 1
+            input()
         return TuringMachineResult(num_steps, configuration.current == self.description.accepting, configuration.tape)
 
     def perform_step(self, configuration: TuringMachineConfiguration):
@@ -129,6 +132,11 @@ class NondeterministicTuringMachine(TuringMachine):
             self.description.initial, input)])
         num_steps = 0
 
+        if verbose:
+            for configuration in configurations:
+                configuration.print()
+            print()
+
         while True:
             # filter out configurations that reject
             nonrejecting_configurations = set()
@@ -153,9 +161,14 @@ class NondeterministicTuringMachine(TuringMachine):
         head = configuration.read()
         current = self.description.states[configuration.current]
         if head in current:
+            transitions = current[head]
             confs = []
-            for to_state, tape_output, move_right in current[head]:
-                conf = configuration.duplicate()
+            for i, (to_state, tape_output, move_right) in enumerate(transitions):
+                # skip duplicating last transition
+                if i == len(transitions) - 1:
+                    conf = configuration
+                else:
+                    conf = configuration.duplicate()
                 conf.write(tape_output)
                 conf.move_head(move_right)
                 conf.go_to_state(to_state)
