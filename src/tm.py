@@ -55,9 +55,9 @@ class TuringMachineDescription:
 
     def add_transition(self, from_state: str, tape_input: str, to_state: str, tape_output: str, move_right: bool):
         assert_property(from_state in self.states,
-                        "from state must be a valid state")
+                        "from state {} is not a valid state".format(from_state))
         assert_property(to_state in self.states,
-                        "to state must be a valid state")
+                        "to state {} is not a valid state".format(to_state))
         assert_property(from_state not in (self.accepting, self.rejecting),
                         "the accept and reject states may not have outgoing transitions")
         assert_property(
@@ -109,8 +109,11 @@ class TuringMachine:
             else:
                 num_steps += 1
             # print(" ".join(self.tape[0:self.position]), end="")
-            # print("<" + self.read() + ">", end="")
-            # print(" ".join(self.tape[self.position+1:]))
+            # if self.position > 0:
+            #     print(" ", end="")
+            # print('\033[91m' + self.read() + '\033[0m ', end="")
+            # print(" ".join(self.tape[self.position+1:]
+            #                ) + " (" + self.current + ")")
         # if self.has_accepted:
         #     print("Accepted")
         # if self.has_rejected:

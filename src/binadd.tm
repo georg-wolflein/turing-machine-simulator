@@ -1,0 +1,109 @@
+states 27
+A
+B0
+C0
+D00
+E00
+F
+G
+H
+D01
+E01
+B1
+C1
+D11
+E11
+FC
+GC
+HC
+AC
+BC1
+CC1
+DC11
+EC11
+C#
+E##
+F##
+acc +
+rej -
+alphabet 4 0 1 # X
+A 0 B0 X R
+A 1 B1 X R
+A # C# # R
+B0 0 B0 0 R
+B0 1 B0 1 R
+B0 # C0 # R
+C0 X C0 X R
+C0 0 D00 X R
+C0 1 D01 X R
+C0 # E00 # R
+D00 0 D00 0 R
+D00 1 D00 1 R
+D00 # E00 # R
+E00 X E00 X R
+E00 0 F X L
+E00 _ F _ L
+F 0 F 0 L
+F 1 F 1 L
+F X F X L
+F # G # L
+G 0 G 0 L
+G 1 G 1 L
+G X G X L
+G # H # L
+H 0 H 0 L
+H 1 H 1 L
+H X A X R
+H # A # L
+D01 0 D01 0 R
+D01 1 D01 1 R
+D01 # E01 # R
+E01 X E01 X R
+E01 1 F X L
+B1 0 B1 0 R
+B1 1 B1 1 R
+B1 # C1 # R
+C1 X C1 X R
+C1 0 D01 X R
+C1 1 D11 X R
+C1 # E01 # R
+D11 0 D11 0 R
+D11 1 D11 1 R
+D11 # E11 # R
+E11 X E11 X R
+E11 0 FC X L
+FC 0 FC 0 L
+FC 1 FC 1 L
+FC X FC X L
+FC # GC # L
+GC 0 GC 0 L
+GC 1 GC 1 L
+GC X GC X L
+GC # HC # L
+HC 0 HC 0 L
+HC 1 HC 1 L
+HC X AC X R
+HC # AC # L
+AC # B1 # R
+AC 0 B1 X R
+AC 1 BC1 X R
+BC1 0 BC1 0 R
+BC1 1 BC1 1 R
+BC1 # CC1 # R
+CC1 X CC1 X R
+CC1 0 D11 X R
+CC1 1 DC11 X R
+DC11 0 DC11 0 R
+DC11 1 DC11 1 R
+DC11 # EC11 # R
+EC11 X EC11 X R
+EC11 1 FC X L
+C# X C# X R
+C# 0 D00 X R
+C# 1 D01 X R
+C# # E## # R
+E## X E## X R
+E## 0 F## 0 R
+E## _ acc _ R
+F## 0 F## 0 R
+F## _ acc _ R
