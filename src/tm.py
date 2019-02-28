@@ -106,7 +106,6 @@ class DeterministicTuringMachine(TuringMachine):
                 break
             else:
                 num_steps += 1
-            input()
         return TuringMachineResult(num_steps, configuration.current == self.description.accepting, configuration.tape)
 
     def perform_step(self, configuration: TuringMachineConfiguration):
