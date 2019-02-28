@@ -22,10 +22,10 @@ if __name__ == "__main__":
     args = sys.argv[1::]
 
     # determine if -v and -n flags are set
-    verbose, nondeterministic = False, False
+    verbose, deterministic = False, True
     while len(args) > 0 and args[0] in ("-n", "-v"):
         if args[0] == "-n":
-            nondeterministic = True
+            deterministic = False
         if args[0] == "-v":
             verbose = True
         args = args[1:]
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # run the machine
     try:
-        machine = parse_machine(machine_file)
+        machine = parse_machine(machine_file, deterministic=deterministic)
         result = machine.process_input(input_word, verbose=verbose)
         print(str(result))
         exit(0 if result.accepted else 1)

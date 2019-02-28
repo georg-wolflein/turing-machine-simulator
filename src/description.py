@@ -51,8 +51,6 @@ class TuringMachineDescription(ABC):
                         "to state {} is not a valid state".format(to_state))
         assert_property(from_state not in (self.accepting, self.rejecting),
                         "the accept and reject states may not have outgoing transitions")
-        assert_property(
-            tape_input not in self.states[from_state], "transitions cannot be defined multiple times")
         assert_property(tape_input in self.alphabet or tape_input ==
                         "_", "tape input must be in the alphabet")
         assert_property(tape_output in self.alphabet or tape_output ==
