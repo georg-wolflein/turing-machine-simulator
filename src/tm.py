@@ -99,8 +99,7 @@ class TuringMachineResult:
     def __str__(self):
         return ("accepted" if self.accepted else "not accepted") + \
             os.linesep + str(self.num_steps) + \
-            os.linesep + " ".join(self.tape) + \
-            os.linesep + ("0" if self.accepted else "1")
+            os.linesep + " ".join(self.tape)
 
 
 class TuringMachine:
