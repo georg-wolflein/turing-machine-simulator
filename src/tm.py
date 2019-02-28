@@ -60,8 +60,6 @@ class TuringMachineConfiguration:
             print(letter, end=" ")
             if i == self.position:
                 print('\033[0m', end="")
-            if i > 100:
-                break
         print()
 
     def __hash__(self):
@@ -144,8 +142,8 @@ class NondeterministicTuringMachine(TuringMachine):
                     if possibility.current == self.description.accepting:
                         # if we have an accepting configuration, accept
                         return TuringMachineResult(num_steps, True, None)
-                    elif configuration.current != self.description.rejecting:
-                        nonrejecting_configurations.add(possibility)
+                    # we can safely add it, since perform_step only returns nonrejecting configurations
+                    nonrejecting_configurations.add(possibility)
             configurations = nonrejecting_configurations
             # reject if there are no configurations left
             if len(configurations) == 0:
@@ -154,6 +152,8 @@ class NondeterministicTuringMachine(TuringMachine):
                 for configuration in configurations:
                     configuration.print()
                 print()
+            if num_steps % 10000 == 0:
+                print(num_steps)
             num_steps += 1
 
     def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
