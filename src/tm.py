@@ -25,11 +25,25 @@ class TuringMachineConfiguration:
         self.current = current
         self.tape = tape
         self.position = position
-        self.is_accepting = is_accepting
-        self.is_rejecting = is_rejecting
 
-    def is_terminating(self):
-        return self.is_accepting or self.is_rejecting
+    def go_to_state(self, state: str):
+        self.current = state
+
+    def read(self) -> str:
+        if self.position == 0 and len(self.tape) == 0:
+            self.tape.append("_")
+        return self.tape[self.position]
+
+    def write(self, letter: str):
+        self.tape[self.position] = letter
+
+    def move_head(self, right: bool):
+        if right:
+            self.position += 1
+        elif self.position > 0:
+            self.position -= 1
+        if len(self.tape) == self.position:
+            self.tape.append("_")
 
     def print(self):
         print(" {:5s} ".format(self.current), end="")
@@ -59,49 +73,21 @@ class TuringMachine:
             configuration = self.perform_step(configuration)
             if verbose:
                 configuration.print()
-            if configuration.is_terminating():
+            if configuration.current in (self.description.accepting, self.description.rejecting):
                 break
             else:
                 num_steps += 1
-        return TuringMachineResult(num_steps, configuration.is_accepting, configuration.tape)
-
-    def go_to_state(self, configuration: TuringMachineConfiguration, state: str, ):
-        assert state in self.description.states
-        configuration.current = state
-        configuration.is_accepting = configuration.current == self.description.accepting
-        configuration.is_rejecting = configuration.current == self.description.rejecting
-
-    def read(self, configuration: TuringMachineConfiguration) -> str:
-        if configuration.position == 0 and len(configuration.tape) == 0:
-            configuration.tape.append("_")
-        assert configuration.position >= 0 and configuration.position < len(
-            configuration.tape)
-        return configuration.tape[configuration.position]
-
-    def write(self, configuration: TuringMachineConfiguration, letter: str):
-        assert configuration.position >= 0 and configuration.position < len(
-            configuration.tape)
-        assert_property(letter in self.description.alphabet or letter ==
-                        "_", "letter to be written is not a tape symbol")
-        configuration.tape[configuration.position] = letter
-
-    def move_head(self, configuration: TuringMachineConfiguration, right: bool):
-        if right:
-            configuration.position += 1
-        elif configuration.position > 0:
-            configuration.position -= 1
-        if len(configuration.tape) == configuration.position:
-            configuration.tape.append("_")
+        return TuringMachineResult(num_steps, configuration.current == self.description.accepting, configuration.tape)
 
     def perform_step(self, configuration: TuringMachineConfiguration) -> TuringMachineConfiguration:
-        head = self.read(configuration)
+        head = configuration.read()
         current = self.description.states[configuration.current]
         if head in current:
             to_state, tape_output, move_right = current[head]
-            self.write(configuration, tape_output)
-            self.move_head(configuration, move_right)
-            self.go_to_state(configuration, to_state)
+            configuration.write(tape_output)
+            configuration.move_head(move_right)
+            configuration.go_to_state(to_state)
         else:
-            self.move_head(configuration, False)
-            self.go_to_state(configuration, self.description.rejecting)
+            configuration.move_head(False)
+            configuration.go_to_state(self.description.rejecting)
         return configuration
