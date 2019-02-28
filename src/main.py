@@ -20,6 +20,8 @@ def read_input_word(filename: str) -> list:
 
 if __name__ == "__main__":
     args = sys.argv[1::]
+
+    # determine if -v and -n flags are set
     verbose, nondeterministic = False, False
     while len(args) > 0 and args[0] in ("-n", "-v"):
         if args[0] == "-n":
@@ -30,16 +32,15 @@ if __name__ == "__main__":
     if len(args) == 0:
         fail(3, "input error", "missing machine input")
 
+    # parse machine file and tape word arguments
     machine_file = args[0]
     input_word = read_input_word(args[1]) if len(args) >= 2 else []
 
+    # run the machine
     try:
         machine = parse_machine(machine_file)
         result = machine.process_input(input_word, verbose=verbose)
-        print("accepted" if result.accepted else "not accepted")
-        print(result.num_steps)
-        print(" ".join(result.tape))
-        exit(0 if result.accepted else 1)
+        print(str(result))
     except IOError:
         fail(3, "input error", "could not access machine description")
     except ExecutionError as e:
