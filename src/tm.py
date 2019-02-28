@@ -62,6 +62,14 @@ class TuringMachineConfiguration:
                 print('\033[0m', end="")
         print()
 
+    def __hash__(self):
+        return hash((self.current, self.position) + tuple(self.tape))
+
+    def __eq__(self, other):
+        if not isinstance(other, TuringMachineConfiguration):
+            return False
+        return self.position == other.position and self.current == other.current and self.tape == other.tape
+
 
 class TuringMachine(ABC):
     def __init__(self, description: TuringMachineDescription):
@@ -117,20 +125,20 @@ class NondeterministicTuringMachine(TuringMachine):
 
     def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
         super().process_input(input, verbose)
-        configurations = [TuringMachineConfiguration(
-            self.description.initial, input)]
+        configurations = set([TuringMachineConfiguration(
+            self.description.initial, input)])
         num_steps = 0
 
         while True:
             # filter out configurations that reject
-            nonrejecting_configurations = []
+            nonrejecting_configurations = set()
             for configuration in configurations:
                 for possibility in self.perform_step(configuration):
                     if possibility.current == self.description.accepting:
                         # if we have an accepting configuration, accept
                         return TuringMachineResult(num_steps, True, None)
                     elif configuration.current != self.description.rejecting:
-                        nonrejecting_configurations.append(possibility)
+                        nonrejecting_configurations.add(possibility)
             configurations = nonrejecting_configurations
             # reject if there are no configurations left
             if len(configurations) == 0:
