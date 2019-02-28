@@ -41,6 +41,7 @@ if __name__ == "__main__":
         machine = parse_machine(machine_file)
         result = machine.process_input(input_word, verbose=verbose)
         print(str(result))
+        exit(0 if result.accepted else 1)
     except IOError:
         fail(3, "input error", "could not access machine description")
     except ExecutionError as e:
