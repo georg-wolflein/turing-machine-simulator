@@ -15,10 +15,6 @@ if __name__ == "__main__":
             with open(sys.argv[2]) as f:
                 input_word = list(f.read().replace("\n", "").replace(" ", ""))
         result = machine.process_input(input_word)
-        while len(result.tape) > 0 and result.tape[-1] == "_":
-            result.tape = result.tape[:-1]
-        if result.tape == []:
-            result.tape = ["_"]
         print("accepted" if result.accepted else "not accepted")
         print(result.num_steps)
         print(" ".join(result.tape))

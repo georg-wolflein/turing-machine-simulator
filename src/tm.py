@@ -80,7 +80,12 @@ class TuringMachineResult:
     def __init__(self, num_steps: int, accepted: bool, tape: typing.List[str]):
         self.num_steps = num_steps
         self.accepted = accepted
-        self.tape = tape
+        for i, letter in enumerate(reversed(tape)):
+            if letter != "_":
+                break
+        self.tape = tape[:-i]
+        if self.tape == []:
+            self.tape = ["_"]
 
 
 class TuringMachine:
@@ -94,7 +99,17 @@ class TuringMachine:
         self.rejecting = description.rejecting
         self.current = self.initial
 
-    def process_input(self, input: list) -> TuringMachineResult:
+    def print_state(self):
+        print(" {:5s} ".format(self.current), end="")
+        for i, letter in enumerate(self.tape):
+            if i == self.position:
+                print('\033[91m', end="")
+            print(letter, end=" ")
+            if i == self.position:
+                print('\033[0m', end="")
+        print()
+
+    def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
         assert_property(all(x in self.alphabet or x == "_" for x in input),
                         "input contains invalid characters")
         self.tape = input
@@ -102,23 +117,16 @@ class TuringMachine:
         self.has_accepted = False
         self.has_rejected = False
         num_steps = 0
+        if verbose:
+            self.print_state()
         while True:
             self.perform_next_step()
+            if verbose:
+                self.print_state()
             if self.has_terminated():
                 break
             else:
                 num_steps += 1
-            print(" ", end="")
-            print(" ".join(self.tape[0:self.position]), end="")
-            if self.position > 0:
-                print(" ", end="")
-            print('\033[91m' + self.read() + '\033[0m ', end="")
-            print(" ".join(self.tape[self.position+1:]
-                           ) + " (" + self.current + ")")
-        # if self.has_accepted:
-        #     print("Accepted")
-        # if self.has_rejected:
-        #     print("Rejected")
         return TuringMachineResult(num_steps, self.has_accepted, self.tape)
 
     def get_current_state(self):
