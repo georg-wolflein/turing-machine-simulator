@@ -97,7 +97,7 @@ class TuringMachineResult:
 
     def __str__(self):
         return ("accepted" if self.accepted else "not accepted") + \
-            "\n" + self.num_steps + \
+            "\n" + str(self.num_steps) + \
             "\n" + " ".join(self.tape) + \
             "\n" + ("0" if self.accepted else "1")
 
