@@ -84,7 +84,7 @@ HC 0 HC 0 L
 HC 1 HC 1 L
 HC X AC X R
 HC # AC # L
-AC # B1 # R
+AC # C1 # R
 AC 0 B1 X R
 AC 1 BC1 X R
 BC1 0 BC1 0 R

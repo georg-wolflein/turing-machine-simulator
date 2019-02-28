@@ -108,12 +108,13 @@ class TuringMachine:
                 break
             else:
                 num_steps += 1
-            # print(" ".join(self.tape[0:self.position]), end="")
-            # if self.position > 0:
-            #     print(" ", end="")
-            # print('\033[91m' + self.read() + '\033[0m ', end="")
-            # print(" ".join(self.tape[self.position+1:]
-            #                ) + " (" + self.current + ")")
+            print(" ", end="")
+            print(" ".join(self.tape[0:self.position]), end="")
+            if self.position > 0:
+                print(" ", end="")
+            print('\033[91m' + self.read() + '\033[0m ', end="")
+            print(" ".join(self.tape[self.position+1:]
+                           ) + " (" + self.current + ")")
         # if self.has_accepted:
         #     print("Accepted")
         # if self.has_rejected:
