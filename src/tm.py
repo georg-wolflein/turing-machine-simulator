@@ -123,7 +123,8 @@ class NondeterministicTuringMachine:
                     return TuringMachineResult(num_steps, True, None)
                 elif configuration.state != self.description.rejecting:
                     new_configurations.append(configuration)
-            if len(new_configurations) == 0:
+            configurations = new_configurations
+            if len(configurations) == 0:
                 return TuringMachineResult(num_steps, False, None)
             if verbose:
                 for configuration in configurations:
