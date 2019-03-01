@@ -1,5 +1,5 @@
-from tm import TuringMachine, NondeterministicTuringMachine, DeterministicTuringMachine
-from description import DeterministicTuringMachineDescription, NondeterministicTuringMachineDescription
+from tm import NondeterministicTuringMachine, DeterministicTuringMachine
+from description import TuringMachineDescription, TuringMachineDescriptionBuilder
 from error import SyntaxError
 
 
@@ -15,12 +15,10 @@ def assert_cast(var, t: type, message: str):
         raise SyntaxError(message)
 
 
-def parse_machine(encoded_machine_file: str, deterministic: bool = True) -> TuringMachine:
+def parse_machine(encoded_machine_file: str, deterministic: bool = True):
     with open(encoded_machine_file, "r") as f:
-        if deterministic:
-            description = DeterministicTuringMachineDescription()
-        else:
-            description = NondeterministicTuringMachineDescription()
+        description = TuringMachineDescriptionBuilder(
+            deterministic=deterministic)
 
         # states heading
         line = f.readline().strip().split(" ")
@@ -76,4 +74,4 @@ def parse_machine(encoded_machine_file: str, deterministic: bool = True) -> Turi
             description.add_transition(
                 from_state, tape_input, to_state, tape_output, move_right)
         description.verify_validity()
-        return DeterministicTuringMachine(description) if deterministic else NondeterministicTuringMachine(description)
+        return DeterministicTuringMachine(description.build()) if deterministic else NondeterministicTuringMachine(description.build())

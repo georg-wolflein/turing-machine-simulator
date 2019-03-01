@@ -1,9 +1,10 @@
 import typing
 import sys
 import os
-from description import DeterministicTuringMachineDescription, NondeterministicTuringMachineDescription, TuringMachineDescription
-from error import assert_property
+from description import TuringMachineDescription
+from error import assert_property, TuringMachineError
 from abc import ABC, abstractmethod
+import numpy as np
 
 
 class TuringMachineResult:
@@ -25,153 +26,131 @@ class TuringMachineResult:
 
 
 class TuringMachineConfiguration:
-    def __init__(self, current: str, tape: list, position: int = 0):
-        self.current = current
+    def __init__(self, state: int, tape: np.array, position: int):
+        self.state = state
         self.tape = tape
         self.position = position
 
-    def go_to_state(self, state: str):
-        self.current = state
-
-    def read(self) -> str:
-        if self.position == 0 and len(self.tape) == 0:
-            self.tape.append("_")
-        return self.tape[self.position]
-
-    def write(self, letter: str):
-        self.tape[self.position] = letter
-
-    def move_head(self, right: bool):
-        if right:
-            self.position += 1
-        elif self.position > 0:
-            self.position -= 1
-        if len(self.tape) == self.position:
-            self.tape.append("_")
-
     def duplicate(self):
-        return TuringMachineConfiguration(self.current, self.tape[::], self.position)
+        return TuringMachineConfiguration(self.state, self.tape.copy(), self.position)
 
-    def print(self):
-        print(" {:5s} ".format(self.current), end="")
+    def print(self, description: TuringMachineDescription):
+        print(" {:5s} ".format(description.states[self.state]), end="")
         for i, letter in enumerate(self.tape):
             if i == self.position:
                 print('\033[91m', end="")
-            print(letter, end=" ")
+            print(description.alphabet[letter], end=" ")
             if i == self.position:
                 print('\033[0m', end="")
         print()
 
-    def __hash__(self):
-        return hash((self.current, self.position) + tuple(self.tape))
 
-    def __eq__(self, other):
-        if not isinstance(other, TuringMachineConfiguration):
-            return False
-        return self.position == other.position and self.current == other.current and self.tape == other.tape
+class DeterministicTuringMachine:
 
-
-class TuringMachine(ABC):
     def __init__(self, description: TuringMachineDescription):
         self.description = description
 
-    def is_terminating(self, configuration: TuringMachineConfiguration) -> bool:
-        return configuration.current in (self.description.accepting, self.description.rejecting)
-
-    @abstractmethod
     def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
-        assert_property(all(x in self.description.alphabet or x == "_" for x in input),
-                        "input contains invalid characters")
-
-
-class DeterministicTuringMachine(TuringMachine):
-
-    def __init__(self, description: DeterministicTuringMachineDescription):
-        super().__init__(description)
-
-    def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
-        super().process_input(input, verbose)
-        configuration = TuringMachineConfiguration(
-            self.description.initial, input)
+        if len(input) == 0:
+            input = ["_"]
+        try:
+            tape = np.array([self.description.alphabet.index(x)
+                             for x in input], dtype=np.uint8)
+        except ValueError:
+            raise TuringMachineError("input contains invalid characters")
+        configuration = TuringMachineConfiguration(0, tape, 0)
         num_steps = 0
         if verbose:
-            configuration.print()
+            configuration.print(self.description)
         while True:
             self.perform_step(configuration)
             if verbose:
-                configuration.print()
-            if self.is_terminating(configuration):
-                break
-            else:
-                num_steps += 1
-        return TuringMachineResult(num_steps, configuration.current == self.description.accepting, configuration.tape)
-
-    def perform_step(self, configuration: TuringMachineConfiguration):
-        head = configuration.read()
-        current = self.description.states[configuration.current]
-        if head in current:
-            to_state, tape_output, move_right = current[head]
-            configuration.write(tape_output)
-            configuration.move_head(move_right)
-            configuration.go_to_state(to_state)
-        else:
-            configuration.move_head(False)
-            configuration.go_to_state(self.description.rejecting)
-
-
-class NondeterministicTuringMachine(TuringMachine):
-    def __init__(self, description: NondeterministicTuringMachineDescription):
-        super().__init__(description)
-
-    def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
-        super().process_input(input, verbose)
-        configurations = set([TuringMachineConfiguration(
-            self.description.initial, input)])
-        num_steps = 0
-
-        if verbose:
-            for configuration in configurations:
-                configuration.print()
-            print()
-
-        while True:
-            # filter out configurations that reject
-            nonrejecting_configurations = set()
-            for configuration in configurations:
-                for possibility in self.perform_step(configuration):
-                    if possibility.current == self.description.accepting:
-                        # if we have an accepting configuration, accept
-                        return TuringMachineResult(num_steps, True, None)
-                    # we can safely add it, since perform_step only returns nonrejecting configurations
-                    nonrejecting_configurations.add(possibility)
-            configurations = nonrejecting_configurations
-            # reject if there are no configurations left
-            if len(configurations) == 0:
-                return TuringMachineResult(num_steps, False, None)
-            if verbose:
-                for configuration in configurations:
-                    configuration.print()
-                print()
-            if num_steps % 10000 == 0:
-                print(num_steps)
+                configuration.print(self.description)
+            if configuration.state == self.description.accepting:
+                return TuringMachineResult(num_steps, True, [self.description.alphabet[x] for x in configuration.tape])
+            if configuration.state == self.description.rejecting:
+                return TuringMachineResult(num_steps, False, [self.description.alphabet[x] for x in configuration.tape])
             num_steps += 1
 
-    def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
-        head = configuration.read()
-        current = self.description.states[configuration.current]
-        if head in current:
-            transitions = current[head]
-            confs = []
-            for i, (to_state, tape_output, move_right) in enumerate(transitions):
-                # skip duplicating last transition
-                if i == len(transitions) - 1:
-                    conf = configuration
-                else:
-                    conf = configuration.duplicate()
-                conf.write(tape_output)
-                conf.move_head(move_right)
-                conf.go_to_state(to_state)
-                confs.append(conf)
-            return confs
+    def perform_step(self, configuration: TuringMachineConfiguration):
+        # read
+        tape_input = configuration.tape[configuration.position]
+        state = self.description.transitions[configuration.state]
+        if tape_input in state:
+            to_state, tape_output, move_right = state[tape_input]
+            # write
+            configuration.tape[configuration.position] = tape_output
+            # move head
+            if move_right:
+                configuration.position += 1
+                if configuration.position == len(configuration.tape):
+                    configuration.tape.resize(
+                        configuration.position + 1, refcheck=False)
+            elif configuration.position > 0:
+                configuration.position -= 1
+            # change state
+            configuration.state = to_state
         else:
-            return []
+            # move head right
+            configuration.position += 1
+            # go to rejecting state
+            configuration.state = self.description.rejecting
+
+
+class NondeterministicTuringMachine:
+    def __init__(self, description: TuringMachineDescription):
+        self.description = description
+
+    def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
+        # configurations = set([TuringMachineConfiguration(
+        #     self.description.initial, input)])
+        # num_steps = 0
+
+        # if verbose:
+        #     for configuration in configurations:
+        #         configuration.print()
+        #     print()
+
+        # while True:
+        #     # filter out configurations that reject
+        #     nonrejecting_configurations = set()
+        #     for configuration in configurations:
+        #         for possibility in self.perform_step(configuration):
+        #             if possibility.current == self.description.accepting:
+        #                 # if we have an accepting configuration, accept
+        #                 return TuringMachineResult(num_steps, True, None)
+        #             # we can safely add it, since perform_step only returns nonrejecting configurations
+        #             nonrejecting_configurations.add(possibility)
+        #     configurations = nonrejecting_configurations
+        #     # reject if there are no configurations left
+        #     if len(configurations) == 0:
+        #         return TuringMachineResult(num_steps, False, None)
+        #     if verbose:
+        #         for configuration in configurations:
+        #             configuration.print()
+        #         print()
+        #     if num_steps % 10000 == 0:
+        #         print(num_steps)
+        #     num_steps += 1
+        pass
+
+    def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
+        # head = configuration.read()
+        # current = self.description.states[configuration.current]
+        # if head in current:
+        #     transitions = current[head]
+        #     confs = []
+        #     for i, (to_state, tape_output, move_right) in enumerate(transitions):
+        #         # skip duplicating last transition
+        #         if i == len(transitions) - 1:
+        #             conf = configuration
+        #         else:
+        #             conf = configuration.duplicate()
+        #         conf.write(tape_output)
+        #         conf.move_head(move_right)
+        #         conf.go_to_state(to_state)
+        #         confs.append(conf)
+        #     return confs
+        # else:
+        #     return []
+        pass
