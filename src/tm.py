@@ -27,23 +27,14 @@ class TuringMachineResult:
 
 
 class TuringMachineConfiguration:
+    state: int
+    tape: np.array
+    position: int
+
     def __init__(self, state: int, tape: np.array, position: int):
         self.state = state
         self.tape = tape
         self.position = position
-
-    def duplicate(self):
-        return TuringMachineConfiguration(self.state, self.tape.copy(), self.position)
-
-    def print(self, description: TuringMachineDescription):
-        print(" {:5s} ".format(description.states[self.state]), end="")
-        for i, letter in enumerate(self.tape):
-            if i == self.position:
-                print('\033[91m', end="")
-            print(description.alphabet[letter], end=" ")
-            if i == self.position:
-                print('\033[0m', end="")
-        print()
 
 
 class DeterministicTuringMachine:
@@ -62,11 +53,11 @@ class DeterministicTuringMachine:
         configuration = TuringMachineConfiguration(0, tape, 0)
         num_steps = 0
         if verbose:
-            configuration.print(self.description)
+            self.print_configuration(configuration)
         while True:
             self.perform_step(configuration)
             if verbose:
-                configuration.print(self.description)
+                self.print_configuration(configuration)
             if configuration.state == self.description.accepting:
                 return TuringMachineResult(num_steps, True, [self.description.alphabet[x] for x in configuration.tape])
             if configuration.state == self.description.rejecting:
@@ -97,6 +88,17 @@ class DeterministicTuringMachine:
             # go to rejecting state
             configuration.state = self.description.rejecting
 
+    def print_configuration(self, configuration: TuringMachineConfiguration):
+        print(" {:5s} ".format(
+            description.states[configuration.state]), end="")
+        for i, letter in enumerate(configuration.tape):
+            if i == configuration.position:
+                print('\033[91m', end="")
+            print(description.alphabet[letter], end=" ")
+            if i == configuration.position:
+                print('\033[0m', end="")
+        print()
+
 
 class NondeterministicTuringMachine:
     def __init__(self, description: TuringMachineDescription):
@@ -112,10 +114,6 @@ class NondeterministicTuringMachine:
             raise TuringMachineError("input contains invalid characters")
         configurations = [TuringMachineConfiguration(0, tape, 0)]
         num_steps = 0
-        if verbose:
-            for configuration in configurations:
-                configuration.print(self.description)
-            print()
         while True:
             new_configurations = []
             for configuration in itertools.chain.from_iterable(self.perform_step(c) for c in configurations):
@@ -127,9 +125,8 @@ class NondeterministicTuringMachine:
             if len(configurations) == 0:
                 return TuringMachineResult(num_steps, False, None)
             if verbose:
-                for configuration in configurations:
-                    configuration.print(self.description)
-                print()
+                if num_steps % 1000000 == 0:
+                    print(" {}".format(num_steps))
             num_steps += 1
 
     def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
@@ -140,7 +137,7 @@ class NondeterministicTuringMachine:
             transitions = state[tape_input]
             for i, (to_state, tape_output, move_right) in enumerate(transitions):
                 conf = configuration if i == len(
-                    transitions) else configuration.duplicate()
+                    transitions) else self.duplicate_configuration(configuration)
                 # write
                 conf.tape[conf.position] = tape_output
                 # move head
@@ -154,3 +151,6 @@ class NondeterministicTuringMachine:
                 # change state
                 conf.state = to_state
                 yield conf
+
+    def duplicate_configuration(self, configuration: TuringMachineConfiguration) -> TuringMachineConfiguration:
+        return TuringMachineConfiguration(configuration.state, configuration.tape.copy(), configuration.position)
