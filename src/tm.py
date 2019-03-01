@@ -1,5 +1,6 @@
 import typing
 import sys
+import itertools
 import os
 from description import TuringMachineDescription
 from error import assert_property, TuringMachineError
@@ -102,55 +103,53 @@ class NondeterministicTuringMachine:
         self.description = description
 
     def process_input(self, input: list, verbose: bool = False) -> TuringMachineResult:
-        # configurations = set([TuringMachineConfiguration(
-        #     self.description.initial, input)])
-        # num_steps = 0
-
-        # if verbose:
-        #     for configuration in configurations:
-        #         configuration.print()
-        #     print()
-
-        # while True:
-        #     # filter out configurations that reject
-        #     nonrejecting_configurations = set()
-        #     for configuration in configurations:
-        #         for possibility in self.perform_step(configuration):
-        #             if possibility.current == self.description.accepting:
-        #                 # if we have an accepting configuration, accept
-        #                 return TuringMachineResult(num_steps, True, None)
-        #             # we can safely add it, since perform_step only returns nonrejecting configurations
-        #             nonrejecting_configurations.add(possibility)
-        #     configurations = nonrejecting_configurations
-        #     # reject if there are no configurations left
-        #     if len(configurations) == 0:
-        #         return TuringMachineResult(num_steps, False, None)
-        #     if verbose:
-        #         for configuration in configurations:
-        #             configuration.print()
-        #         print()
-        #     if num_steps % 10000 == 0:
-        #         print(num_steps)
-        #     num_steps += 1
-        pass
+        if len(input) == 0:
+            input = ["_"]
+        try:
+            tape = np.array([self.description.alphabet.index(x)
+                             for x in input], dtype=np.uint8)
+        except ValueError:
+            raise TuringMachineError("input contains invalid characters")
+        configurations = [TuringMachineConfiguration(0, tape, 0)]
+        num_steps = 0
+        if verbose:
+            for configuration in configurations:
+                configuration.print(self.description)
+            print()
+        while True:
+            new_configurations = []
+            for configuration in itertools.chain.from_iterable(self.perform_step(c) for c in configurations):
+                if configuration.state == self.description.accepting:
+                    return TuringMachineResult(num_steps, True, None)
+                elif configuration.state != self.description.rejecting:
+                    new_configurations.append(configuration)
+            if len(new_configurations) == 0:
+                return TuringMachineResult(num_steps, False, None)
+            if verbose:
+                for configuration in configurations:
+                    configuration.print(self.description)
+                print()
+            num_steps += 1
 
     def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
-        # head = configuration.read()
-        # current = self.description.states[configuration.current]
-        # if head in current:
-        #     transitions = current[head]
-        #     confs = []
-        #     for i, (to_state, tape_output, move_right) in enumerate(transitions):
-        #         # skip duplicating last transition
-        #         if i == len(transitions) - 1:
-        #             conf = configuration
-        #         else:
-        #             conf = configuration.duplicate()
-        #         conf.write(tape_output)
-        #         conf.move_head(move_right)
-        #         conf.go_to_state(to_state)
-        #         confs.append(conf)
-        #     return confs
-        # else:
-        #     return []
-        pass
+        # read
+        tape_input = configuration.tape[configuration.position]
+        state = self.description.transitions[configuration.state]
+        if tape_input in state:
+            transitions = state[tape_input]
+            for i, (to_state, tape_output, move_right) in enumerate(transitions):
+                conf = configuration if i == len(
+                    transitions) else configuration.duplicate()
+                # write
+                conf.tape[conf.position] = tape_output
+                # move head
+                if move_right:
+                    conf.position += 1
+                    if conf.position == len(conf.tape):
+                        conf.tape.resize(
+                            conf.position + 1, refcheck=False)
+                elif conf.position > 0:
+                    conf.position -= 1
+                # change state
+                conf.state = to_state
+                yield conf
