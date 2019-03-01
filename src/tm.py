@@ -101,6 +101,11 @@ class DeterministicTuringMachine:
 
 
 class NondeterministicTuringMachine:
+
+    class AcceptException(Exception):
+        def __init__(self, configuration: TuringMachineConfiguration):
+            self.configuration = configuration
+
     def __init__(self, description: TuringMachineDescription):
         self.description = description
 
@@ -115,18 +120,17 @@ class NondeterministicTuringMachine:
         configurations = [TuringMachineConfiguration(0, tape, 0)]
         num_steps = 0
         while True:
-            new_configurations = []
-            for configuration in itertools.chain.from_iterable(self.perform_step(c) for c in configurations):
-                if configuration.state == self.description.accepting:
-                    return TuringMachineResult(num_steps, True, None)
-                elif configuration.state != self.description.rejecting:
-                    new_configurations.append(configuration)
+            try:
+                new_configurations = list(itertools.chain.from_iterable(
+                    self.perform_step(c) for c in configurations))
+            except NondeterministicTuringMachine.AcceptException:
+                return TuringMachineResult(num_steps, True, None)
             configurations = new_configurations
             if len(configurations) == 0:
                 return TuringMachineResult(num_steps, False, None)
-            if verbose:
-                if num_steps % 1000000 == 0:
-                    print(" {}".format(num_steps))
+            # if verbose:
+            #     if num_steps % 1000000 == 0:
+            #         print(" {}".format(num_steps))
             num_steps += 1
 
     def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
@@ -137,7 +141,7 @@ class NondeterministicTuringMachine:
             transitions = state[tape_input]
             for i, (to_state, tape_output, move_right) in enumerate(transitions):
                 conf = configuration if i == len(
-                    transitions) else self.duplicate_configuration(configuration)
+                    transitions) - 1 else self.duplicate_configuration(configuration)
                 # write
                 conf.tape[conf.position] = tape_output
                 # move head
@@ -150,7 +154,11 @@ class NondeterministicTuringMachine:
                     conf.position -= 1
                 # change state
                 conf.state = to_state
-                yield conf
+                # check if accepting
+                if conf.state == self.description.accepting:
+                    raise NondeterministicTuringMachine.AcceptException(conf)
+                elif conf.state != self.description.rejecting:
+                    yield conf
 
     def duplicate_configuration(self, configuration: TuringMachineConfiguration) -> TuringMachineConfiguration:
         return TuringMachineConfiguration(configuration.state, configuration.tape.copy(), configuration.position)
