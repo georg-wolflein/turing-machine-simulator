@@ -97,13 +97,13 @@ class TuringMachineDescriptionBuilder:
         else:
             transitions = {
                 states.index(state): {
-                    alphabet.index(input_letter): [
-                        (
+                    alphabet.index(input_letter): np.array([
+                        [
                             states.index(to_state),
                             alphabet.index(tape_output),
-                            move_right
-                        ) for (to_state, tape_output, move_right) in transitions
-                    ] for input_letter, transitions in input_letters.items()
+                            1 if move_right else 0
+                        ] for (to_state, tape_output, move_right) in transitions
+                    ], dtype=np.uint16) for input_letter, transitions in input_letters.items()
                 } for state, input_letters in self.states.items()}
         accepting = states.index(self.accepting)
         rejecting = states.index(self.rejecting)

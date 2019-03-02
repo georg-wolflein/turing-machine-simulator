@@ -6,6 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from turing.description import TuringMachineDescription
 from turing.error import assert_property, TuringMachineError
+import optimisations
 
 
 class TuringMachineResult:
@@ -113,52 +114,31 @@ class NondeterministicTuringMachine:
         if len(input) == 0:
             input = ["_"]
         try:
-            tape = np.array([self.description.alphabet.index(x)
-                             for x in input], dtype=np.uint8)
+            tape = [self.description.alphabet.index(x) for x in input]
         except ValueError:
             raise TuringMachineError("input contains invalid characters")
-        configurations = [TuringMachineConfiguration(0, tape, 0)]
+        configurations = [optimisations.create_initial_configuration(
+            tape, self.description.accepting, self.description.rejecting)]
         num_steps = 0
+
+        def get_next_configurations(configuration):
+            state, tape_input = optimisations.read_state(configuration)
+            try:
+                transitions = self.description.transitions[state][tape_input]
+                return optimisations.apply_transitions(configuration, transitions)
+            except KeyError:
+                return []
+
         while True:
             try:
                 new_configurations = list(itertools.chain.from_iterable(
-                    self.perform_step(c) for c in configurations))
-            except NondeterministicTuringMachine.AcceptException:
+                    get_next_configurations(c) for c in configurations))
+            except optimisations.Accept:
                 return TuringMachineResult(num_steps, True, None)
             configurations = new_configurations
             if len(configurations) == 0:
                 return TuringMachineResult(num_steps, False, None)
-            # if verbose:
-            #     if num_steps % 1000000 == 0:
-            #         print(" {}".format(num_steps))
+            if verbose:
+                if num_steps % 1000000 == 0:
+                    print(" {}".format(num_steps))
             num_steps += 1
-
-    def perform_step(self, configuration: TuringMachineConfiguration) -> typing.List[TuringMachineConfiguration]:
-        # read
-        tape_input = configuration.tape[configuration.position]
-        state = self.description.transitions[configuration.state]
-        if tape_input in state:
-            transitions = state[tape_input]
-            for i, (to_state, tape_output, move_right) in enumerate(transitions):
-                conf = configuration if i == len(
-                    transitions) - 1 else self.duplicate_configuration(configuration)
-                # write
-                conf.tape[conf.position] = tape_output
-                # move head
-                if move_right:
-                    conf.position += 1
-                    if conf.position == len(conf.tape):
-                        conf.tape.resize(
-                            conf.position + 1, refcheck=False)
-                elif conf.position > 0:
-                    conf.position -= 1
-                # change state
-                conf.state = to_state
-                # check if accepting
-                if conf.state == self.description.accepting:
-                    raise NondeterministicTuringMachine.AcceptException(conf)
-                elif conf.state != self.description.rejecting:
-                    yield conf
-
-    def duplicate_configuration(self, configuration: TuringMachineConfiguration) -> TuringMachineConfiguration:
-        return TuringMachineConfiguration(configuration.state, configuration.tape.copy(), configuration.position)
