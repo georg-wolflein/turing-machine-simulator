@@ -45,3 +45,15 @@ def apply_transitions(np.ndarray configuration not None, LETTER_t[:, :] transiti
         elif position > 0:
             conf[0] = position - 1
         yield conf
+
+def print_configuration(LETTER_t[:] configuration not None, str alphabet, list states):
+    cdef LETTER_t position = configuration[0]
+    cdef LETTER_t state = configuration[1]
+    print(" {:5s} ".format(states[state]), end="")
+    for i in range(configuration.shape[0] - 4):
+        if i == position:
+            print('\033[91m', end="")
+        print(alphabet[configuration[i + 4]], end=" ")
+        if i == position:
+            print('\033[0m', end="")
+    print()

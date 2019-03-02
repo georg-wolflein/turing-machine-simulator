@@ -130,6 +130,10 @@ class NondeterministicTuringMachine:
                 return []
 
         while True:
+            if verbose:
+                [optimisations.print_configuration(
+                    c, self.description.alphabet, self.description.states) for c in configurations]
+                print()
             try:
                 new_configurations = list(itertools.chain.from_iterable(
                     get_next_configurations(c) for c in configurations))
@@ -138,7 +142,4 @@ class NondeterministicTuringMachine:
             configurations = new_configurations
             if len(configurations) == 0:
                 return TuringMachineResult(num_steps, False, None)
-            if verbose:
-                if num_steps % 1000000 == 0:
-                    print(" {}".format(num_steps))
             num_steps += 1
