@@ -10,7 +10,7 @@ runtm:
 
 .PHONY: dependencies
 dependencies:
-	python3 -m pip install numpy cython
+	python3 -m pip install --user numpy cython
 
 .PHONY: build
 build:
