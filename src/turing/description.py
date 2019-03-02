@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from turing.error import assert_property
 import typing
 import numpy as np
+import optimisations
 
 
 class TuringMachineDescription(typing.NamedTuple):
@@ -84,27 +85,32 @@ class TuringMachineDescriptionBuilder:
     def build(self) -> TuringMachineDescription:
         self.verify_validity()
         alphabet = "_" + "".join(self.alphabet)
-        states = [self.initial] + [x for x in self.states if x != self.initial]
+        states_dict = {self.initial: 0}
+        states = [self.initial]
+        for state in self.states:
+            if state != self.initial:
+                states_dict[state] = len(states)
+                states.append(state)
         if self.deterministic:
             transitions = {
-                states.index(state): {
+                states_dict[state]: {
                     alphabet.index(input_letter): (
-                        states.index(to_state),
+                        states_dict[to_state],
                         alphabet.index(tape_output),
                         move_right
                     ) for input_letter, (to_state, tape_output, move_right) in input_letters.items()
                 } for state, input_letters in self.states.items()}
         else:
             transitions = {
-                states.index(state): {
+                states_dict[state]: {
                     alphabet.index(input_letter): np.array([
                         [
-                            states.index(to_state),
+                            states_dict[to_state],
                             alphabet.index(tape_output),
                             1 if move_right else 0
                         ] for (to_state, tape_output, move_right) in transitions
-                    ], dtype=np.uint16) for input_letter, transitions in input_letters.items()
+                    ], dtype=optimisations.LETTER) for input_letter, transitions in input_letters.items()
                 } for state, input_letters in self.states.items()}
-        accepting = states.index(self.accepting)
-        rejecting = states.index(self.rejecting)
+        accepting = states_dict[self.accepting]
+        rejecting = states_dict[self.rejecting]
         return TuringMachineDescription(alphabet, states, transitions, accepting, rejecting)

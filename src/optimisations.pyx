@@ -2,30 +2,31 @@ import cython
 import numpy as np
 cimport numpy as np
 
-ctypedef np.uint16_t DTYPE_t
+LETTER = np.uint32
+ctypedef np.uint32_t LETTER_t
 
 class Accept(Exception):
     pass
 
 def create_initial_configuration(tape, accepting, rejecting):
-    return np.array([0, 0, accepting, rejecting] + [x for x in tape], dtype=np.uint16)
+    return np.array([0, 0, accepting, rejecting] + [x for x in tape], dtype=LETTER)
 
-@cython.boundscheck(False) # turn off bounds-checking for entire function
+@cython.boundscheck(False)
 @cython.wraparound(False) 
-def read_state(unsigned short[:] tape not None):
+def read_state(LETTER_t[:] tape not None):
     return (tape[1], tape[tape[0] + 4])
 
-@cython.boundscheck(False) # turn off bounds-checking for entire function
+@cython.boundscheck(False)
 @cython.wraparound(False) 
-def apply_transitions(np.ndarray configuration not None, unsigned short[:, :] transitions):
-    cdef unsigned short position = configuration[0]
-    cdef unsigned short accepting = configuration[2]
-    cdef unsigned short rejecting = configuration[3]
+def apply_transitions(np.ndarray configuration not None, LETTER_t[:, :] transitions):
+    cdef LETTER_t position = configuration[0]
+    cdef LETTER_t accepting = configuration[2]
+    cdef LETTER_t rejecting = configuration[3]
     cdef ssize_t I = transitions.shape[0]
 
-    cdef unsigned short to_state
-    cdef unsigned short tape_output
-    cdef unsigned short move_right
+    cdef LETTER_t to_state
+    cdef LETTER_t tape_output
+    cdef LETTER_t move_right
     for i in range(I):
         to_state = transitions[i, 0]
         if to_state == rejecting:
@@ -44,27 +45,3 @@ def apply_transitions(np.ndarray configuration not None, unsigned short[:, :] tr
         elif position > 0:
             conf[0] = position - 1
         yield conf
-
-# @cython.boundscheck(False) # turn off bounds-checking for entire function
-# @cython.wraparound(False) 
-# def apply_transition(unsigned short[:] tape not None, unsigned short to_state, unsigned short tape_output, unsigned short move_right):
-#     cdef unsigned short position = tape[0]
-#     tape[position + 2] = tape_output
-#     tape[1] = to_state
-#     if move_right:
-#         tape[0] = position + 1
-#         if tape.shape[0] == position + 3:
-#             return True
-#     elif position > 0:
-#         tape[0] = position - 1
-#     return False
-    
-
-# @cython.boundscheck(False) # turn off bounds-checking for entire function
-# @cython.wraparound(False)  # turn off negative index wrapping for entire function
-# def apply_transition(np.ndarray[LETTERTYPE_t] configuration, unsigned short to_state, unsigned short tape_output, bool move_right):
-#     cdef position = 
-# 
-# @cython.boundscheck(False) # turn off bounds-checking for entire function
-# @cython.wraparound(False)  # turn off negative index wrapping for entire function
-# def read_letter_and_state(np.ndarray[LETTERTYPE_t] configuration):
