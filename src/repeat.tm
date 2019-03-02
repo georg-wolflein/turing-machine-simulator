@@ -15,6 +15,7 @@ F1
 alphabet 4 0 1 $ X
 A 0 B0 $ R
 A 1 B1 $ R
+A _ F _ L
 B0 0 B0 0 R
 B0 1 B0 1 R
 B0 0 C X L
