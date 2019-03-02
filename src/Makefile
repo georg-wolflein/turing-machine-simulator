@@ -1,6 +1,21 @@
 .PHONY: all
 
-all:
-	echo "#!/usr/bin/env python3" > runtm
-	cat main.py >> runtm
+all: dependencies build runtm
+	
+
+.PHONY: runtm
+runtm:
+	ln -sf runtm.py runtm
 	chmod +x runtm
+
+.PHONY: dependencies
+dependencies:
+	python3 -m pip install numpy cython
+
+.PHONY: build
+build:
+	python3 setup.py build_ext --inplace
+
+.PHONY: clean
+clean:
+	#rm -rf optimizations.c*

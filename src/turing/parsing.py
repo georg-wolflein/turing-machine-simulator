@@ -1,6 +1,6 @@
-from tm import NondeterministicTuringMachine, DeterministicTuringMachine
-from description import TuringMachineDescription, TuringMachineDescriptionBuilder
-from error import SyntaxError
+from turing.machine import NondeterministicTuringMachine, DeterministicTuringMachine
+from turing.description import TuringMachineDescription, TuringMachineDescriptionBuilder
+from turing.error import SyntaxError
 
 
 def assert_syntax(cond: bool, message: str):

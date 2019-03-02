@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+
 import sys
 import typing
-from parsing import parse_machine
-from error import ExecutionError
+from turing.parsing import parse_machine
+from turing.error import ExecutionError
 
 
 def fail(code: int, message: str, error: typing.Union[Exception, str]):

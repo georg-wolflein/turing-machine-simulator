@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from error import assert_property
+from turing.error import assert_property
 import typing
 import numpy as np
 
