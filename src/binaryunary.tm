@@ -1,4 +1,4 @@
-states 19
+states 20
 A
 B
 C
@@ -16,8 +16,9 @@ L
 M
 N
 O
-P +
-Q -
+P
+Q +
+R -
 alphabet 5 0 1 @ $ #
 A 0 B # R
 A 1 B @ R
@@ -37,6 +38,7 @@ G $ H $ R
 H 0 H 0 R
 H 1 I @ R
 H # L 0 L
+H _ P _ L
 I 0 I 0 R
 I 1 I 1 R
 I # I # R
@@ -55,4 +57,6 @@ M # L 0 L
 M _ O _ L
 N 0 M 1 R
 O 0 O _ L
-O 1 P 1 L
+O 1 Q 1 L
+P 0 P _ L
+P $ Q _ L
