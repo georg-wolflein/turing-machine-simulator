@@ -35,6 +35,8 @@ def parse_machine(encoded_machine_file: str, deterministic: bool = True):
             assert_syntax(len(line) <= 2,
                           "too many arguments to define the state")
             state_name = line[0]
+            assert_syntax(state_name != "alphabet",
+                          "more states defined than expected")
             description.add_state(state_name)
             if len(line) == 2:
                 accept_or_reject = line[1]
