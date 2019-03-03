@@ -1,4 +1,4 @@
-states 12
+states 13
 A
 B0
 B1
@@ -11,6 +11,7 @@ G
 J
 K
 M -
+Q
 alphabet 6 0 1 # X Y $
 A 0 B0 $ R
 A 1 B1 $ R
@@ -40,6 +41,7 @@ E X G X R
 E Y G Y R
 G 0 B0 X R
 G 1 B1 Y R
+G # Q # R
 J _ F _ L
 K 0 K 0 L
 K 1 K 1 L
@@ -47,3 +49,6 @@ K X K 0 L
 K Y K 1 L
 K # K # L
 K $ A $ R
+Q X Q X R
+Q Y Q Y R
+Q _ F _ L
