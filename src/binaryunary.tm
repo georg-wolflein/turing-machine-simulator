@@ -18,14 +18,14 @@ N
 O
 P +
 Q -
-alphabet 6 0 1 X Y $ #
-A 0 B X R
-A 1 B Y R
+alphabet 5 0 1 @ $ #
+A 0 B # R
+A 1 B @ R
 B 0 B 0 R
 B 1 B 1 R
 B _ C _ L
-C X F0 $ R
-C Y F1 $ R
+C # F0 $ R
+C @ F1 $ R
 C 0 D0 _ R
 C 1 D1 _ R
 D0 _ E 0 L
@@ -35,7 +35,7 @@ F0 _ G 0 L
 F1 _ G 1 L
 G $ H $ R
 H 0 H 0 R
-H 1 I Y R
+H 1 I @ R
 H # L 0 L
 I 0 I 0 R
 I 1 I 1 R
@@ -44,7 +44,7 @@ I _ J # L
 J # J # L
 J 0 J 0 L
 J 1 J 1 L
-J Y K 0 L
+J @ K 0 L
 K 0 K 1 L
 K $ H $ R
 L 0 L 0 L
