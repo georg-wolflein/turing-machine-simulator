@@ -1,4 +1,4 @@
-states 26
+states 27
 A
 B0
 B1
@@ -25,6 +25,7 @@ P
 Q
 R -
 S +
+T
 alphabet 6 0 1 X Y $ #
 A # P # R
 A 0 B0 $ R
@@ -88,10 +89,10 @@ K1 1 K1 1 L
 K1 X K1 0 L
 K1 Y K1 1 L
 K1 $ L1 $ R
-L0 0 B0 $ R
+L0 0 T $ R
 L0 1 L0 $ R
 L1 0 L1 $ R
-L1 1 B1 $ R
+L1 1 T $ R
 M 0 M 0 R
 M 1 M 1 R
 M # N # R
@@ -107,3 +108,5 @@ P _ S _ L
 Q X Q X R
 Q Y Q Y R
 Q _ S _ L
+T 0 B0 X R
+T 1 B1 Y R
