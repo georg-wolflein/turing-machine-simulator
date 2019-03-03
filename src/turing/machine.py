@@ -91,11 +91,11 @@ class DeterministicTuringMachine:
 
     def print_configuration(self, configuration: TuringMachineConfiguration):
         print(" {:5s} ".format(
-            description.states[configuration.state]), end="")
+            self.description.states[configuration.state]), end="")
         for i, letter in enumerate(configuration.tape):
             if i == configuration.position:
                 print('\033[91m', end="")
-            print(description.alphabet[letter], end=" ")
+            print(self.description.alphabet[letter], end=" ")
             if i == configuration.position:
                 print('\033[0m', end="")
         print()
