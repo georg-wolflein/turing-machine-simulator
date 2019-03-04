@@ -21,7 +21,7 @@ for csv_file in glob(os.path.join(DATA_DIR, "*.csv")):
         if title.startswith("#"):
             title = title[1:]
         title = title.strip()
-    plt.title(title)
+    plt.title(r"\begin{center}" + title + r"\end{center}")
     plt.xlabel("$n$")
     plt.ylabel("mean number of steps")
     plt.tight_layout()
