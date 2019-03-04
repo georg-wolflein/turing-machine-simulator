@@ -1,7 +1,10 @@
 .PHONY: all
 
 all: dependencies build runtm
-	
+
+.PHONY: data
+data:
+	python3 -m data.paren
 
 .PHONY: runtm
 runtm:

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from turing.error import assert_property
+import turing.optimisations as optimisations
 import typing
 import numpy as np
-import optimisations
 
 
 class TuringMachineDescription(typing.NamedTuple):

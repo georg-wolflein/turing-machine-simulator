@@ -113,8 +113,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-src/runtm
-test/
+/src/runtm
+/src/data_out
+/test
 
 # cython
 *.c

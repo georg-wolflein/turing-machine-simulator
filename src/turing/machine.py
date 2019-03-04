@@ -6,7 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from turing.description import TuringMachineDescription
 from turing.error import assert_property, TuringMachineError
-import optimisations
+import turing.optimisations as optimisations
 
 
 class TuringMachineResult:
