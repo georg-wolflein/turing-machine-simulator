@@ -114,8 +114,7 @@ dmypy.json
 .pyre/
 
 /src/runtm
-/src/data_out
-/test
+/data
 
 # cython
 *.c

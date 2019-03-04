@@ -2,9 +2,18 @@
 
 all: dependencies build runtm
 
+.PHONY: tests
+tests:
+	python3 -m tests.run_tests
+
 .PHONY: data
 data:
-	python3 -m data.paren
+	python3 -m data.generate.paren
+	python3 -m data.generate.binadd
+
+.PHONY: analyse
+analyse: #dependencies
+	python3 -m data.analyse
 
 .PHONY: runtm
 runtm:
@@ -13,7 +22,7 @@ runtm:
 
 .PHONY: dependencies
 dependencies:
-	python3 -m pip install --user numpy cython
+	python3 -m pip install --user numpy cython pandas matplotlib
 
 .PHONY: build
 build:

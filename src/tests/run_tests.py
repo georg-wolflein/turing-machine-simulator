@@ -4,8 +4,8 @@ import subprocess
 import os
 from glob import glob
 
-TEST_DIR = "."
-SRC_DIR = os.path.join("..", "src")
+TEST_DIR = "tests"
+SRC_DIR = "."
 RUNTM = os.path.join(SRC_DIR, "runtm")
 
 TEST_TYPES = {
