@@ -11,7 +11,7 @@ def completely_random(length: int):
     return [random.choice(["0", "1", "#"]) for x in range(length)]
 
 
-@runner(step=2, trials=10, description=r"random words from $L(\{0+1\}^* # \{0+1\}^* # \{0,1\}^*)$ of length $n$")
+@runner(step=2, trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0+1\}^*)$ of length $n$")
 def random_three_numbers(length: int):
     if length <= 2:
         return ["#"] * length
@@ -25,7 +25,7 @@ def random_three_numbers(length: int):
     return t
 
 
-@runner(step=2, trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0,1\}^*)w$ of length $n$ that are accepted")
+@runner(step=2, trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0+1\}^*)w$ of length $n$ that are accepted")
 def accepting_three_numbers(length: int):
     def int2binstr(i: int, length: int) -> str:
         s = "{:b}".format(i)
