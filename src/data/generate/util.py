@@ -22,7 +22,7 @@ def make_runner(*tm_files: str):
                 print("Generating {}...".format(filename))
                 with open(filename, "w") as f:
                     f.write(r"# Result of running $M_\text{}$ \\ on {} \\ for {} trial{}".format(
-                        "{"+tm+"}", description, trials, "" if trials == 1 else "s"))
+                        "{" + tm.replace("_", "\\_") + "}", description, trials, "" if trials == 1 else "s"))
                     f.write("\nn,num_steps\n")
                     for length in itertools.islice(itertools.count(step=step), NUM_ITERATIONS):
                         for _ in range(trials):

@@ -4,17 +4,17 @@ import math
 from data.generate.util import make_runner
 
 
-runner = make_runner("subword.tm", "subword_fast")
+runner = make_runner("subword.tm", "subword_fast.tm")
 
 
-@runner(step=2, trials=1, description=r"words from $\{w\#w \mid \text{$w \in \{0,1\}^{\lfloor n/2 \rfloor\}$")
+@runner(step=2, trials=1, description=r"words from $\{w\#w \mid w \in \{0,1\}^{ \lfloor n/2 \rfloor } \}$")
 def equal(length: int):
     if length <= 1:
         return ["#"] * length
     a = [random.choice(["0", "1"]) for _ in range((length - 1) // 2)]
     b = a.copy()
     while len(a) + len(b) + 1 < length:
-        a.append(random.choice(["0", ""]))
+        a.append(random.choice(["0", "1"]))
     return a + ["#"] + b
 
 
