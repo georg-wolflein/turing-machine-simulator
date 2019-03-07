@@ -10,10 +10,11 @@ tests:
 data:
 	python3 -m data.generate.paren
 	python3 -m data.generate.binadd
+	python3 -m data.generate.subword
 
-.PHONY: analyse
-analyse: #dependencies
-	python3 -m data.analyse
+.PHONY: plot
+plot: #dependencies
+	python3 -m data.plot
 
 .PHONY: runtm
 runtm:
