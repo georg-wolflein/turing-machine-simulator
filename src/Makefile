@@ -10,11 +10,18 @@ tests:
 data:
 	python3 -m data.generate.paren
 	python3 -m data.generate.binadd
+	python3 -m data.generate.binaryunary
 	python3 -m data.generate.subword
 
-.PHONY: plot
-plot: #dependencies
-	python3 -m data.plot
+.PHONY: plots
+plots: dependencies
+	python3 -m data.plots
+	python3 -m data.appendices
+
+.PHONY: report
+report: data plots
+	mkdir -p ../tex/images/graphs
+	cp -r ../data/*.pdf ../tex/images/graphs
 
 .PHONY: runtm
 runtm:

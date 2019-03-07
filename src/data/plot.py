@@ -1,3 +1,7 @@
+'''Generate plots for all CSV files.
+'''
+
+
 import os
 from glob import glob
 
