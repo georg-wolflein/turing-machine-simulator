@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+'''Script for running the automated tests.
+'''
+
+
 import subprocess
 import os
 from glob import glob

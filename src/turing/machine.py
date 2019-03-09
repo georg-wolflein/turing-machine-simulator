@@ -1,3 +1,7 @@
+'''The deterministic and nondeterministic Turing machine simulators.
+'''
+
+
 import typing
 import sys
 import itertools

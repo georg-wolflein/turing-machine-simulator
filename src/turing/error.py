@@ -1,3 +1,7 @@
+'''Various exceptions that can be encountered by Turing machines.
+'''
+
+
 class ExecutionError(Exception):
     def __init__(self, message: str):
         self.message = message

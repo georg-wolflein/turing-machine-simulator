@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+'''Main program entry.
+'''
+
 import sys
 import typing
 from turing.parsing import parse_machine
@@ -7,12 +10,29 @@ from turing.error import ExecutionError
 
 
 def fail(code: int, message: str, error: typing.Union[Exception, str]):
+    '''Convenience function for printing failure messages.
+
+    Arguments:
+        code {int} -- the exit code
+        message {str} -- the message
+        error {typing.Union[Exception, str]} -- the exception or message
+    '''
+
     print(error, file=sys.stderr)
     print(message)
     exit(code)
 
 
 def read_input_word(filename: str) -> list:
+    '''Reads the input word from a file.
+
+    Arguments:
+        filename {str} -- the name of the file
+
+    Returns:
+        list -- the tape input
+    '''
+
     try:
         with open(filename) as f:
             return list(f.read().replace("\n", "").replace(" ", ""))

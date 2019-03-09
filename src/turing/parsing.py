@@ -1,3 +1,7 @@
+'''Parse Turing machines from *.tm files.
+'''
+
+
 from turing.machine import NondeterministicTuringMachine, DeterministicTuringMachine
 from turing.description import TuringMachineDescription, TuringMachineDescriptionBuilder
 from turing.error import SyntaxError

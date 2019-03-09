@@ -1,7 +1,10 @@
+'''Benchmarks for the binadd machine.
+'''
+
 import itertools
 import random
 import math
-from data.generate.util import make_runner
+from data.generate.runner import make_runner
 
 
 runner = make_runner("binadd.tm")

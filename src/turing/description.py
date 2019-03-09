@@ -1,3 +1,7 @@
+'''Classes responsible for storing the properties of Turing machines.
+'''
+
+
 from abc import ABC, abstractmethod
 from turing.error import assert_property
 import turing.optimisations as optimisations
@@ -83,6 +87,12 @@ class TuringMachineDescriptionBuilder:
         assert_property(self.initial != None, "initial state must be defined")
 
     def build(self) -> TuringMachineDescription:
+        '''Build the Turing machine description for the previously set properties.
+
+        Returns:
+            TuringMachineDescription -- the description
+        '''
+
         self.verify_validity()
         alphabet = "_" + "".join(self.alphabet)
         states_dict = {self.initial: 0}

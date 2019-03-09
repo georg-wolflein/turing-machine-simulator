@@ -1,3 +1,16 @@
+'''Optimisations to improve the efficiency of the Turing machines. This code interfaces with C to make it faster.
+
+Note that each configuration is a numpy array such that:
+
+    configuration[0] contains the current position on the tape (as an offset)
+    configuration[1] contains the current state number
+    configuration[2] is the number of the accepting state
+    configuration[3] is the number of the rejecting state
+    configuration[4] and onwards contains the actual tape
+
+Notice also that all states and letters are just numbers (they were converted in the DescriptionBuilder).
+'''
+
 import cython
 import numpy as np
 cimport numpy as np
@@ -13,8 +26,8 @@ def create_initial_configuration(tape, accepting, rejecting):
 
 @cython.boundscheck(False)
 @cython.wraparound(False) 
-def read_state(LETTER_t[:] tape not None):
-    return (tape[1], tape[tape[0] + 4])
+def read_state(LETTER_t[:] configuration not None):
+    return (configuration[1], configuration[configuration[0] + 4])
 
 @cython.boundscheck(False)
 @cython.wraparound(False) 
