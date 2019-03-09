@@ -13,15 +13,17 @@ data:
 	python3 -m data.generate.binaryunary
 	python3 -m data.generate.subword
 
-.PHONY: plots
-plots: dependencies
-	python3 -m data.plots
+.PHONY: plot
+plot: dependencies
+	python3 -m data.plot
 	python3 -m data.appendices
 
 .PHONY: report
-report: data plots
+report:
 	mkdir -p ../tex/images/graphs
 	cp -r ../data/*.pdf ../tex/images/graphs
+	cd tex && pdflatex main.tex
+	cp text/main.pdf report.pdf
 
 .PHONY: runtm
 runtm:

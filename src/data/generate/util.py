@@ -11,7 +11,7 @@ NUM_ITERATIONS = 500
 def make_runner(*tm_files: str):
     machines = [(tm_file, parse_machine(tm_file)) for tm_file in tm_files]
 
-    def decorator(step: int, trials: int, description: str):
+    def decorator(trials: int, description: str, step: int = 1, iterations: int = NUM_ITERATIONS):
         def runner(func):
             if not os.path.isdir(DATA_DIR):
                 os.makedirs(DATA_DIR)
@@ -20,11 +20,11 @@ def make_runner(*tm_files: str):
                 filename = os.path.join(
                     DATA_DIR, "{}-{}.csv".format(os.path.basename(tm), func.__name__))
                 print("Generating {}...".format(filename))
-                with open(filename, "w") as f:
+                with open(filename, "w", buffering=1) as f:
                     f.write(r"# Result of running $M_\text{}$ \\ on {} \\ for {} trial{}".format(
                         "{" + tm.replace("_", "\\_") + "}", description, trials, "" if trials == 1 else "s"))
                     f.write("\nn,num_steps\n")
-                    for length in itertools.islice(itertools.count(step=step), NUM_ITERATIONS):
+                    for length in itertools.islice(itertools.count(step=step), iterations):
                         for _ in range(trials):
                             tape = func(length)
                             f.write("{},{}\n".format(

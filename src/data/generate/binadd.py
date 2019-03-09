@@ -19,14 +19,14 @@ def binstr2int(s: str) -> int:
     return 0 if s == "" else int("".join(reversed(s)), base=2)
 
 
-@runner(step=1, trials=1, description=r"words from $L(\# 0^* \#)$ of length $n$")
+@runner(trials=1, description=r"words from $L(\# 0^* \#)$ of length $n$")
 def accepting_zeros(length: int):
     if length <= 2:
         return ["#"] * length
     return ["#"] + (["0"] * (length - 2)) + ["#"]
 
 
-@runner(step=1, trials=1, description=r"words from $\{ 1^a \# 1^a \# 1 0^a \}$ for some $a$")
+@runner(trials=1, description=r"words from $\{ 1^a \# 1^a \# 1 0^a \}$ for some $a$")
 def accepting_ones(length: int):
     if length <= 2:
         return ["#"] * length
@@ -38,7 +38,7 @@ def accepting_ones(length: int):
                          for x, l in zip(values, lengths)))
 
 
-@runner(step=1, trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0+1\}^*)$ of length $n$ that are accepted")
+@runner(trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0+1\}^*)$ of length $n$ that are accepted")
 def accepting_random(length: int):
     if length <= 2:
         return ["#"] * length
@@ -51,12 +51,12 @@ def accepting_random(length: int):
                          for x, l in zip(values, lengths)))
 
 
-@runner(step=1, trials=10, description=r"random words from $L((0+1+\#)^*)$ of length $n$")
+@runner(trials=10, description=r"random words from $L((0+1+\#)^*)$ of length $n$")
 def completely_random(length: int):
     return [random.choice(["0", "1", "#"]) for x in range(length)]
 
 
-@runner(step=1, trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0+1\}^*)$ of length $n$")
+@runner(trials=10, description=r"random words from $L(\{0+1\}^* \# \{0+1\}^* \# \{0+1\}^*)$ of length $n$")
 def random_three_numbers(length: int):
     if length <= 2:
         return ["#"] * length
