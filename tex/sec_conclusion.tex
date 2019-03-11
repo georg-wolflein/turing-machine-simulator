@@ -1,0 +1,8 @@
+\section{Conclusion}
+
+In the course of this practical, I learnt a lot about the internals of Python and the inefficiencies associated with such dynamically typed languages. 
+I also experienced different classes of complexity, especially the binary to unary converter in $\mathcal{O}(4^n)$ that realistically could only run for input of size $n<15$
+
+I also gained a better appreciation for the operations and methods in Turing-complete programming languages that we take for `granted'. Their implementation on a bit-by-bit level can be quite tedious.
+
+Some interesting areas for further inquiry could be to find further optimisations for the Turing machines, like $M_\text{subword\_fast}$ is for $M_\text{subword}$. Especially the $M_\text{binary\_unary}$ machine contains some redundancies. For this machine, it would be interesting to prove whether or not it is possible to construct a Turing machine for that problem that is of lower complexity than $\mathcal{O}(4^n)$ (or even $\mathcal{O}(2^n)$).

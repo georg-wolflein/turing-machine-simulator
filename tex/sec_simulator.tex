@@ -1,0 +1,35 @@
+\section{Design of the Turing machine simulator}
+
+The simulator is mainly written in Python 3, but some optimizations are done in Cython. Apart from the main entry point, \code{src/runtm.py}, the Python code relevant to the simulators is located in the the \code{src/turing} directory which acts as a Python package.
+
+Please note that the subsequent sub-sections will be brief and only highlight interesting aspects of the implementation. For more information, kindly refer to the commented code itself.
+
+\subsection{The \code{runtm} executable}
+
+The \code{Makefile} simply creates a symbolic link to \code{runtm.py}. This file has a shebang that directs the program loader to use the Python interpreter.
+
+\subsection{Parsing}
+
+Parsing is carried out in the \code{src/turing/parsing.py} file. Using customised exceptions, the program is able to generate quite exact error messages to direct the user to the source of the problem if there are syntax errors.
+
+The parser uses the \code{TuringMachineDescriptionBuilder} to populate the states and alphabet (see next section). 
+
+\subsection{Turing machine descriptions}
+
+The \code{TuringMachineDescription} class in \code{src/turing/description.py} holds all required information to define a Turing machine (formally the 7-tuple $M = (Q, \Sigma, \Gamma, \delta, q_0, q_a, q_r)$). The transitions are encoded numerically for efficiency. This means that all states and all letters of the alphabet are assigned integer values and they are refereed to by these numbers. The reason for this is to improve efficiency. The \code{TuringMachineDescriptionBuilder} is in charge of encoding this information.
+
+Also note that the \code{TuringMachineDescriptionBuilder} can be in a deterministic or nondeterministic mode. This affects the errors it generates, as well as how the transitions are stored. In any case, the transitions are stored in a Python \code{dict} (which is essentially a hashmap). 
+
+\subsection{The deterministic Turing machine simulator}
+
+The Turing machine simulators are located in the \code{src/turing/machine.py} file. 
+The deterministic simulator is represented by the \code{DeterministicTuringMachine} class. 
+The \code{process\_input} method takes as argument the contents of the tape and repeatedly calls the \code{perform\_step} method that is responsible for performing one transition (including writing to the tape). Each iteration modifies the instance of \code{DeterministicTuringMachineConfiguration} in place which represents the configuratino of the TM. 
+
+Upon reaching a halting state, the \code{process\_input} returns an instance of \code{TuringMachineResult} that contains the tape content, number of transitions, and whether the machine accepted or rejected.
+
+The \code{process\_input} method also has a verbose option which is triggered when running \code{./runtm -v \dots}. When this is enabled, it will print the contents of the tape after each step, along with the name of the current state. This requires doing reverse lookups for the tape and states at each step, so it should only be used for debugging.
+
+\subsection{The nondeterministic Turing machine simulator}
+
+The \code{NondeterministicTuringMachine} class works similarly to its deterministic counterpart, except that at each step, it looks at all possible configurations the Turing machine could be in. Note that the configurations are stored in a \code{numpy} array. This is to allow easier interfacing with the \code{Cython} code. This is more clearly documented in the comments of the \code{src/turing/optimisations.pyx} file which is in charge of handling the `bottlenecks' that were encountered when testing the nondeterministic machines. This file is compiled to \code{C} for efficiency. 

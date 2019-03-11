@@ -1,0 +1,9 @@
+\section{The nondeterministic Turing machine $N_\text{repeat}$}
+
+The nondeterministic Turing machine $N_\text{repeat}$ should recognize the language $\left\{ w w \mid w \in \left\{0,1\right\}^* \right\}$.
+
+\subsection{Description}
+
+\paragraph{High-level description}
+
+Read the first letter. Then move right along the tape and `split' the machine into two machines at each cell that contains the same value as the initial cell. Each machine will then compare letters by going back and forth and marking off the letters. One of these machines will accept once all letters are compared and we reach the end of tape. Namely the machine that chooses the middle of the tape as the `pivot'.

@@ -114,7 +114,11 @@ dmypy.json
 .pyre/
 
 /src/runtm
-/data
+
+# tex
+*.aux
+*.toc
+*.loc
 
 # cython
 *.c

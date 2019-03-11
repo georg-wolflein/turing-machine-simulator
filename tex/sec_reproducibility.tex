@@ -1,0 +1,9 @@
+\section{Reproducibility}
+
+All CSV data and plots referenced in this report can be reproduced independently to verify the validity of the findings. The following commands are available for that (executed from the \code{src/} directory:
+
+\begin{itemize}
+    \item \code{make data} will run the trials on all Turing machines and (over)write the data in the \code{data/} directory).
+    \item \code{make plots} will generate plots for all CSV files located in the \code{data/} directory and place them in the same directory in the PNG format (note that this requires \code{matplotlib} and \code{latex}). This will also regenerate the \code{text/appendices.tex} file.
+    \item \code{make report} will regenerate the entire report and output the PDF file to \code{report.pdf}. This also requires \code{latex} to be installed (specifically the \code{pdflatex} utility).
+\end{itemize}
