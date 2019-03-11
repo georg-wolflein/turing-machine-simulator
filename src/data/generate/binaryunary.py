@@ -21,6 +21,6 @@ def zeros(length: int):
     return ["0"] * length
 
 
-@runner(trials=10, description=r"random words from $L(\{0+1\}^*)$ of length $n$")
+@runner(trials=15, iterations=10, description=r"random words from $L(\{0+1\}^*)$ of length $n$")
 def completely_random(length: int):
     return [random.choice(["0", "1"]) for _ in range(length)]

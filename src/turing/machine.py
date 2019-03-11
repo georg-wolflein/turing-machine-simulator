@@ -31,7 +31,7 @@ class TuringMachineResult:
         return ("accepted" if self.accepted else "not accepted") + os.linesep + str(self.num_steps) + ((os.linesep + "".join(self.tape)) if self.tape is not None else "")
 
 
-class TuringMachineConfiguration:
+class DeterministicTuringMachineConfiguration:
     state: int
     tape: np.array
     position: int
@@ -55,7 +55,7 @@ class DeterministicTuringMachine:
                              for x in input], dtype=np.uint8)
         except ValueError:
             raise TuringMachineError("input contains invalid characters")
-        configuration = TuringMachineConfiguration(0, tape, 0)
+        configuration = DeterministicTuringMachineConfiguration(0, tape, 0)
         num_steps = 0
         if verbose:
             self.print_configuration(configuration)
@@ -69,7 +69,7 @@ class DeterministicTuringMachine:
                 return TuringMachineResult(num_steps, False, [self.description.alphabet[x] for x in configuration.tape])
             num_steps += 1
 
-    def perform_step(self, configuration: TuringMachineConfiguration):
+    def perform_step(self, configuration: DeterministicTuringMachineConfiguration):
         # read
         tape_input = configuration.tape[configuration.position]
         state = self.description.transitions[configuration.state]
@@ -93,7 +93,7 @@ class DeterministicTuringMachine:
             # go to rejecting state
             configuration.state = self.description.rejecting
 
-    def print_configuration(self, configuration: TuringMachineConfiguration):
+    def print_configuration(self, configuration: DeterministicTuringMachineConfiguration):
         print(" {:5s} ".format(
             self.description.states[configuration.state]), end="")
         for i, letter in enumerate(configuration.tape):
@@ -108,7 +108,7 @@ class DeterministicTuringMachine:
 class NondeterministicTuringMachine:
 
     class AcceptException(Exception):
-        def __init__(self, configuration: TuringMachineConfiguration):
+        def __init__(self, configuration: DeterministicTuringMachineConfiguration):
             self.configuration = configuration
 
     def __init__(self, description: TuringMachineDescription):
@@ -125,7 +125,7 @@ class NondeterministicTuringMachine:
             tape, self.description.accepting, self.description.rejecting)]
         num_steps = 0
 
-        def get_next_configurations(configuration):
+        def get_next_configurations(configuration: np.ndarray):
             state, tape_input = optimisations.read_state(configuration)
             try:
                 transitions = self.description.transitions[state][tape_input]
