@@ -20,10 +20,10 @@ plot: dependencies
 
 .PHONY: report
 report:
-	mkdir -p ../tex/images/graphs
-	cp -r ../data/*.pdf ../tex/images/graphs
-	cd tex && pdflatex main.tex
-	cp text/main.pdf report.pdf
+	mkdir -p ../tex/images/plots
+	cp -r ../data/*.pdf ../tex/images/plots
+	cd ../tex && pdflatex main.tex
+	cp ../tex/main.pdf ../report.pdf
 
 .PHONY: runtm
 runtm:
