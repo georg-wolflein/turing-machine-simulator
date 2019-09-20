@@ -1,4 +1,4 @@
-# Turing Machines in Python
+# Turing Machine Simulator in Python
 
 An implementation of a Turing Machine simulator for both Deterministic and Non-deterministic Turing Machines. Written in Python 3 and optimized for performance with Cython.
 
